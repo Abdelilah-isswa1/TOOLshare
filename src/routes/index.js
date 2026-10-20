@@ -10,4 +10,6 @@ router.use('/managers', require('./manager.routes'));
 
 router.use('/catalog', require('./catalog.routes'));
 
+router.use('/reservations', require('./reservation.routes'));
+
 module.exports = router;
