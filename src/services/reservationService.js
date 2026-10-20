@@ -136,6 +136,14 @@ async function cancelReservation(userId, reservationId, now = new Date()) {
   return updated; // its slots are free again: the unique index ignores cancelled bookings
 }
 
+// TOOL-37: ownership is enforced by always filtering on the caller's id.
+const listMyReservations = (userId) =>
+  reservationRepository.findByUser(userId, { status: 'confirmed' }, { startDate: 1 });
+const listMyLoans = (userId) =>
+  reservationRepository.findByUser(userId, { status: 'in_progress' }, { startDate: 1 });
+const listMyHistory = (userId) =>
+  reservationRepository.findByUser(userId, { status: { $in: ['returned', 'cancelled'] } }, { startDate: -1 });
+
 module.exports = {
   ALLOWED_TRANSITIONS,
   canTransition,
@@ -144,4 +152,8 @@ module.exports = {
   createReservation,
   checkAvailability,
   cancelReservation,
+  listMyReservations,
+  listMyLoans,
+  listMyHistory,
+  intervalsOverlap,
 };
