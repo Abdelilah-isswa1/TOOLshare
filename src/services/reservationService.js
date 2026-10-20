@@ -7,8 +7,10 @@ const {
   computeSlots,
   intervalsOverlap,
 } = require('../utils/timeSlots');
+const { generateReference } = require('../utils/reference');
 const storeRepository = require('../repositories/storeRepository');
 const equipmentRepository = require('../repositories/equipmentRepository');
+const reservationRepository = require('../repositories/reservationRepository');
 
 // Pure time rules shared by booking and availability (TOOL-32).
 function parseSlot({ startDate, durationHours }, now = Date.now()) {
@@ -51,4 +53,37 @@ async function validateBookingInput({ storeId, equipmentId, startDate, durationH
   return { start, end, slots, store, equipment };
 }
 
-module.exports = { parseSlot, validateBookingInput };
+const MAX_REFERENCE_ATTEMPTS = 5;
+
+// TOOL-33 + TOOL-34: create a reservation. The overlap query is only a fast
+// path for a friendly error; the unique partial index on occupiedSlots is the
+// real guarantee that two simultaneous requests cannot both win.
+async function createReservation(userId, input, now = Date.now()) {
+  const { start, end, slots, equipment } = await validateBookingInput(input, now);
+
+  const conflicts = await reservationRepository.findOverlapping(equipment._id, start, end);
+  if (conflicts.length > 0) {
+    throw new AppError(409, 'the requested time slot is no longer available', 'SLOT_TAKEN');
+  }
+
+  for (let attempt = 0; attempt < MAX_REFERENCE_ATTEMPTS; attempt += 1) {
+    try {
+      return await reservationRepository.create({
+        reference: generateReference(),
+        user: userId,
+        store: input.storeId,
+        equipment: equipment._id,
+        startDate: start,
+        endDate: end,
+        durationHours: input.durationHours,
+        occupiedSlots: slots,
+        status: 'confirmed',
+      });
+    } catch (err) {
+      if (!err.referenceCollision) throw err; // slot conflicts and others bubble up
+    }
+  }
+  throw new AppError(500, 'could not generate a unique reservation reference', 'INTERNAL_ERROR');
+}
+
+module.exports = { parseSlot, validateBookingInput, createReservation };
