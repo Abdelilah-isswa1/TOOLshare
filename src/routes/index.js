@@ -4,4 +4,6 @@ const router = express.Router();
 
 router.use('/installation', require('./installation.routes'));
 
+router.use('/stores', require('./store.routes'));
+
 module.exports = router;
