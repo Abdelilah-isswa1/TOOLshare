@@ -65,4 +65,22 @@ router.post('/', authorizeRoles('user'), controller.create);
  */
 router.get('/availability', authorizeRoles('admin', 'manager', 'user'), controller.availability);
 
+/**
+ * @openapi
+ * /api/reservations/{reservationId}/cancel:
+ *   patch:
+ *     summary: Cancel a confirmed reservation before it starts (owner only)
+ *     tags: [Reservations]
+ *     security: [{ bearerAuth: [] }]
+ *     parameters:
+ *       - { in: path, name: reservationId, required: true, schema: { type: string } }
+ *     responses:
+ *       200: { description: Reservation cancelled, slot released }
+ *       401: { description: Unauthenticated }
+ *       403: { description: Not the owner }
+ *       404: { description: Reservation not found }
+ *       409: { description: Not confirmed, or already started }
+ */
+router.patch('/:reservationId/cancel', authorizeRoles('user'), controller.cancel);
+
 module.exports = router;

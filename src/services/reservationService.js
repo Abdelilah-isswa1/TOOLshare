@@ -12,6 +12,20 @@ const storeRepository = require('../repositories/storeRepository');
 const equipmentRepository = require('../repositories/equipmentRepository');
 const reservationRepository = require('../repositories/reservationRepository');
 
+// Allowed status transitions. Cancel (TOOL-36) is ours; handover
+// (confirmed -> in_progress) and return (in_progress -> returned) belong to
+// Khalid's tasks and are only declared here so the rules live in one place.
+const ALLOWED_TRANSITIONS = {
+  confirmed: ['cancelled'],
+  in_progress: ['returned'],
+  returned: [],
+  cancelled: [],
+};
+
+function canTransition(from, to) {
+  return (ALLOWED_TRANSITIONS[from] || []).includes(to);
+}
+
 // Pure time rules shared by booking and availability (TOOL-32).
 function parseSlot({ startDate, durationHours }, now = Date.now()) {
   if (typeof durationHours !== 'number' || !Number.isFinite(durationHours) || durationHours <= 0) {
@@ -104,4 +118,30 @@ async function checkAvailability({ equipmentId, startDate, durationHours }, now 
   return { ...base, available: true };
 }
 
-module.exports = { parseSlot, validateBookingInput, createReservation, checkAvailability };
+// TOOL-36: cancel a confirmed reservation before its start (owner only).
+async function cancelReservation(userId, reservationId, now = new Date()) {
+  const reservation = await reservationRepository.findById(reservationId);
+  if (!reservation) throw new AppError(404, 'reservation not found');
+  if (String(reservation.user) !== String(userId)) {
+    throw new AppError(403, 'forbidden: not your reservation');
+  }
+  if (!canTransition(reservation.status, 'cancelled')) {
+    throw new AppError(409, 'only confirmed reservations can be cancelled', 'INVALID_STATUS');
+  }
+  if (reservation.startDate <= now) {
+    throw new AppError(409, 'a reservation that has started cannot be cancelled', 'ALREADY_STARTED');
+  }
+  const updated = await reservationRepository.cancelIfConfirmed(reservationId, userId, now);
+  if (!updated) throw new AppError(409, 'reservation can no longer be cancelled', 'INVALID_STATUS');
+  return updated; // its slots are free again: the unique index ignores cancelled bookings
+}
+
+module.exports = {
+  ALLOWED_TRANSITIONS,
+  canTransition,
+  parseSlot,
+  validateBookingInput,
+  createReservation,
+  checkAvailability,
+  cancelReservation,
+};

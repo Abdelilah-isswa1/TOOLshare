@@ -15,3 +15,8 @@ exports.availability = asyncHandler(async (req, res) => {
   });
   res.json(result);
 });
+
+exports.cancel = asyncHandler(async (req, res) => {
+  const reservation = await reservationService.cancelReservation(req.user.id, req.params.reservationId);
+  res.json({ reservation });
+});
