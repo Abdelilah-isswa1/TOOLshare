@@ -8,4 +8,6 @@ router.use('/stores', require('./store.routes'));
 
 router.use('/managers', require('./manager.routes'));
 
+router.use('/catalog', require('./catalog.routes'));
+
 module.exports = router;
