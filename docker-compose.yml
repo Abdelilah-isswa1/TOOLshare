@@ -1,2 +1,24 @@
 services:
-  
+  mongo:
+    image: mongo
+    volumes:
+      - mongo_data:/data/db
+    ports:
+      - "27017:27017"
+
+  api:
+    build: .
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    depends_on:
+      - mongo
+    restart: on-failure
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: npm run dev
+
+volumes:
+  mongo_data:
