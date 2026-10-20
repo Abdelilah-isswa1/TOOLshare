@@ -38,4 +38,31 @@ router.use(authenticate);
  */
 router.post('/', authorizeRoles('user'), controller.create);
 
+/**
+ * @openapi
+ * /api/reservations/availability:
+ *   get:
+ *     summary: Check whether equipment is free for a time slot
+ *     tags: [Reservations]
+ *     security: [{ bearerAuth: [] }]
+ *     parameters:
+ *       - { in: query, name: equipmentId, required: true, schema: { type: string } }
+ *       - { in: query, name: startDate, required: true, schema: { type: string, format: date-time } }
+ *       - { in: query, name: durationHours, required: true, schema: { type: number } }
+ *     responses:
+ *       200:
+ *         description: Availability result
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 available: { type: boolean }
+ *                 reason: { type: string, enum: [SLOT_TAKEN, EQUIPMENT_UNAVAILABLE, STORE_INACTIVE] }
+ *       400: { description: Validation error }
+ *       401: { description: Unauthenticated }
+ *       404: { description: Equipment not found }
+ */
+router.get('/availability', authorizeRoles('admin', 'manager', 'user'), controller.availability);
+
 module.exports = router;

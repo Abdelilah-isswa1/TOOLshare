@@ -86,4 +86,22 @@ async function createReservation(userId, input, now = Date.now()) {
   throw new AppError(500, 'could not generate a unique reservation reference', 'INTERNAL_ERROR');
 }
 
-module.exports = { parseSlot, validateBookingInput, createReservation };
+// TOOL-35: is this equipment free for this slot?
+async function checkAvailability({ equipmentId, startDate, durationHours }, now = Date.now()) {
+  if (!equipmentId) throw new AppError(400, 'equipmentId is required');
+  const { start, end } = parseSlot({ startDate, durationHours }, now);
+
+  const equipment = await equipmentRepository.findById(equipmentId);
+  if (!equipment) throw new AppError(404, 'equipment not found');
+
+  const base = { equipmentId: String(equipment._id), startDate: start, endDate: end };
+  const store = await storeRepository.findById(equipment.store);
+  if (!store || !store.active) return { ...base, available: false, reason: 'STORE_INACTIVE' };
+  if (equipment.status !== 'available') return { ...base, available: false, reason: 'EQUIPMENT_UNAVAILABLE' };
+
+  const conflicts = await reservationRepository.findOverlapping(equipment._id, start, end);
+  if (conflicts.length > 0) return { ...base, available: false, reason: 'SLOT_TAKEN' };
+  return { ...base, available: true };
+}
+
+module.exports = { parseSlot, validateBookingInput, createReservation, checkAvailability };
