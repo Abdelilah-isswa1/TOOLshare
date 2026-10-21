@@ -1,6 +1,6 @@
 import mongoose from 'mongoose'
 
-const Store = new mongoose.Schema({
+const StoreSchema = new mongoose.Schema({
 
     name : {
         type : String,
