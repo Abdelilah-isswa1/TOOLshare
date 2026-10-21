@@ -1,6 +1,9 @@
 import mongoose from 'mongoose'
+import bcrypt from 'bcrypt'
 
-const User = new mongoose.Schema({
+const SALT_ROUNDS = 12
+
+const UserSchema = new mongoose.Schema({
 
     firstName : {
         type : String,
@@ -36,7 +39,24 @@ const User = new mongoose.Schema({
     },
 
     isActive : {
-
+        type : Boolean,
         default :true
     }
+},{ timestamps: true });
+
+UserSchema.pre('save', async function (next) {
+    if (!this.isModified('password')) return next();
+    try {
+        this.password = await bcrypt.hash(this.password, SALT_ROUNDS);
+        next();
+    } catch (err) {
+        next(err);
+    }
 });
+
+UserSchema.methods.comparePassword = function (plainPassword) {
+    return bcrypt.compare(plainPassword, this.password);
+};
+
+const User = mongoose.model('User', UserSchema);
+export default User;
