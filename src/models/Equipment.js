@@ -23,6 +23,7 @@ const EquipmentSchema = new mongoose.Schema({
     etatMateriel : {
         type : String,
         enum : ["BON","ENDOMMAGE","EN_MAINTENANCE","HORS_SERVICE"],
+        default : "BON",
         uppercase : true
     },
 
