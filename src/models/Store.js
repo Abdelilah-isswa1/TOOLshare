@@ -21,6 +21,7 @@ const Store = new mongoose.Schema({
     },
 
     isActive : {
+        type : Boolean,
         default : true
     }
 })
