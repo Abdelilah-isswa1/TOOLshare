@@ -24,4 +24,4 @@ const StoreSchema = new mongoose.Schema({
         type : Boolean,
         default : true
     }
-})
+}, {timestamps : true});
