@@ -13,5 +13,7 @@ const login = async ({ email, password }) => {
 
     if (!user.is_active) throw new AppError('Compte désactivé', 403);
 
-
+    const token = signToken(user);
+    const { password: _pw, ...safeUser } = user.toObject();
+    return { token, user: safeUser };
 };
