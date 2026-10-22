@@ -1,5 +1,5 @@
 import mongoose from 'mongoose'
-import bcrypt from 'bcrypt'
+const bcrypt = require('bcryptjs');
 
 const SALT_ROUNDS = 12
 
@@ -44,18 +44,13 @@ const UserSchema = new mongoose.Schema({
     }
 },{ timestamps: true });
 
-UserSchema.pre('save', async function (next) {
-    if (!this.isModified('password')) return next();
-    try {
-        this.password = await bcrypt.hash(this.password, SALT_ROUNDS);
-        next();
-    } catch (err) {
-        next(err);
-    }
+userSchema.pre('save', async function () {
+    if (!this.isModified('password')) return;
+    this.password = await bcrypt.hash(this.password, 12);
 });
 
-UserSchema.methods.comparePassword = function (plainPassword) {
-    return bcrypt.compare(plainPassword, this.password);
+userSchema.methods.comparePassword = function (plain) {
+    return bcrypt.compare(plain, this.password);
 };
 
 const User = mongoose.model('User', UserSchema);
