@@ -7,3 +7,5 @@ const controller = require('../controllers/auth');
 
 router.post('/login', validate(loginSchema), controller.login);
 router.get('/me', authenticate, controller.me);
+
+module.exports = router;
