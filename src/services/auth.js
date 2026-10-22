@@ -11,5 +11,7 @@ const login = async ({ email, password }) => {
     const ok = await user.comparePassword(password);
     if (!ok) throw new AppError(INVALID, 401);
 
+    if (!user.is_active) throw new AppError('Compte désactivé', 403);
+
 
 };
