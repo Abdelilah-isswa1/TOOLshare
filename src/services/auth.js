@@ -17,3 +17,5 @@ const login = async ({ email, password }) => {
     const { password: _pw, ...safeUser } = user.toObject();
     return { token, user: safeUser };
 };
+
+module.exports = { login };
