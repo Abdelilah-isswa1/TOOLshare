@@ -8,5 +8,8 @@ const login = async ({ email, password }) => {
     const user = await userRepository.findByEmail(email);
     if (!user) throw new AppError(INVALID, 401);
 
+    const ok = await user.comparePassword(password);
+    if (!ok) throw new AppError(INVALID, 401);
+
 
 };
