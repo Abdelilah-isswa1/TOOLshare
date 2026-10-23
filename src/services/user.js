@@ -11,5 +11,8 @@ const createUser = async (payload, creator) => {
   if (role === ROLES.ADMIN)
     throw new AppError('La création d’un administrateur n’est pas autorisée', 403);
 
-  
+  if (creator.role === ROLES.MANAGER) {
+    if (role !== ROLES.USER)
+      throw new AppError('Un gestionnaire ne peut créer que des utilisateurs', 403);
+  } 
 };
