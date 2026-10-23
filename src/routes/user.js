@@ -13,3 +13,13 @@ const controller = require('../controllers/user');
 
 router.patch('/me', authenticate, validate(updateProfileSchema), controller.updateMe);
 router.patch('/me/password', authenticate, validate(changePasswordSchema), controller.changeMyPassword);
+
+router.post(
+  '/',
+  authenticate,
+  authorizeRoles(ROLES.ADMIN, ROLES.MANAGER),
+  validate(createUserSchema),
+  controller.create
+);
+
+module.exports = router;
