@@ -1,5 +1,5 @@
 module.exports = Object.freeze({
-    ADMIN: 'Admin',
-    MANAGER: 'Gestionnaire',
-    USER: 'Utilisateur',
+    ADMIN: 'admin',
+    MANAGER: 'gestionnaire',
+    USER: 'user',
 });
