@@ -25,3 +25,5 @@ const managerStoreScope = (paramName = 'storeId') => (req, res, next) => {
 
     return next(new AppError('Accès refusé', 403));
 };
+
+module.exports = managerStoreScope;
