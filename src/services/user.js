@@ -53,7 +53,22 @@ const updateProfile = async (userId, payload) => {
   return user; 
 };
 
+const changePassword = async (userId, { currentPassword, newPassword }) => {
+  const user = await userRepository.findByIdWithPassword(userId);
+  if (!user) throw new AppError('Utilisateur introuvable', 404);
 
+  if (!(await user.comparePassword(currentPassword)))
+    throw new AppError('Mot de passe actuel incorrect', 400); 
 
-module.exports = { createUser, updateProfile };
+  if (await user.comparePassword(newPassword))
+    throw new AppError('Le nouveau mot de passe doit être différent', 400);
+
+  user.password = newPassword;          
+  user.passwordChangedAt = new Date();  
+  await user.save();
+
+  return { message: 'Mot de passe modifié avec succès' };
+};
+
+module.exports = { createUser, updateProfile, changePassword };
 
