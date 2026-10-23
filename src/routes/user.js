@@ -10,3 +10,6 @@ const {
   changePasswordSchema,
 } = require('../validators/user');
 const controller = require('../controllers/user');
+
+router.patch('/me', authenticate, validate(updateProfileSchema), controller.updateMe);
+router.patch('/me/password', authenticate, validate(changePasswordSchema), controller.changeMyPassword);
