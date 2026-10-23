@@ -37,3 +37,5 @@ const createUser = async (payload, creator) => {
     createdBy: creator._id,
   });
 };
+
+module.exports = { createUser };
