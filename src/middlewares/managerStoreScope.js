@@ -12,5 +12,16 @@ const managerStoreScope = (paramName = 'storeId') => (req, res, next) => {
         if (!user.store)
             return next(new AppError('Aucun magasin assigné à ce gestionnaire', 403));
 
+        const managerStore = user.store.toString();
+        const requested = req.params[paramName];
 
+        if (requested && requested !== managerStore)
+            return next(new AppError('Accès refusé à ce magasin', 403));
+
+        req.storeScope = managerStore;
+        return next();
+    }
+
+
+    return next(new AppError('Accès refusé', 403));
 };
