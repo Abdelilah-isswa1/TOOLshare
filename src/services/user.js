@@ -8,5 +8,8 @@ const createUser = async (payload, creator) => {
   const role = payload.role || ROLES.USER;
   let store;
 
+  if (role === ROLES.ADMIN)
+    throw new AppError('La création d’un administrateur n’est pas autorisée', 403);
+
   
 };
