@@ -5,4 +5,11 @@ const findByEmail = (email) =>
 
 const findById = (id) => User.findById(id);
 
-module.exports = { findByEmail, findById };
+const create = async (data) => {
+    const doc = await User.create(data);
+    const { password, ...safe } = doc.toObject();
+    return safe;
+};
+
+
+module.exports = { findByEmail, findById, create };
