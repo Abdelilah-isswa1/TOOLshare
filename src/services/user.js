@@ -38,4 +38,22 @@ const createUser = async (payload, creator) => {
   });
 };
 
-module.exports = { createUser };
+const updateProfile = async (userId, payload) => {
+  
+  const data = {};
+  for (const key of ['firstName', 'lastName', 'email']) {
+    if (payload[key] !== undefined) data[key] = payload[key];
+  }
+
+  if (data.email && (await userRepository.emailTakenByOther(data.email, userId)))
+    throw new AppError('Email déjà utilisé', 409);
+
+  const user = await userRepository.updateById(userId, data);
+  if (!user) throw new AppError('Utilisateur introuvable', 404);
+  return user; 
+};
+
+
+
+module.exports = { createUser, updateProfile };
+
