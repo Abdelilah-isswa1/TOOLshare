@@ -6,3 +6,5 @@ const authorizeRoles = (...allowedRoles) => (req, res, next) => {
         return next(new AppError('Accès refusé', 403));
     next();
 };
+
+module.exports = authorizeRoles;
