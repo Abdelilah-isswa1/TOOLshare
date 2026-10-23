@@ -14,5 +14,15 @@ const createUser = async (payload, creator) => {
   if (creator.role === ROLES.MANAGER) {
     if (role !== ROLES.USER)
       throw new AppError('Un gestionnaire ne peut créer que des utilisateurs', 403);
+  } else if (creator.role === ROLES.ADMIN) {
+    if (role === ROLES.MANAGER) {
+      if (!payload.store) throw new AppError('Le magasin est requis pour un gestionnaire', 400);
+      const found = await storeRepository.findById(payload.store);
+      if (!found) throw new AppError('Magasin introuvable', 404);
+      if (found.isActive === false) throw new AppError('Magasin inactif', 400);
+      store = found._id;
+    } else if (payload.store) {
+      throw new AppError('Un utilisateur ne peut pas être rattaché à un magasin', 400);
+    }
   } 
 };
