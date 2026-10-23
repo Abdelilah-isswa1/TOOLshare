@@ -24,5 +24,16 @@ const createUser = async (payload, creator) => {
     } else if (payload.store) {
       throw new AppError('Un utilisateur ne peut pas être rattaché à un magasin', 400);
     }
-  } 
+  } else {
+    throw new AppError('Accès refusé', 403);
+  }
+
+  if (await userRepository.findByEmail(email))
+    throw new AppError('Email déjà utilisé', 409);
+
+  return userRepository.create({
+    firstName, lastName, email, password, role,
+    ...(store && { store }),
+    createdBy: creator._id,
+  });
 };
