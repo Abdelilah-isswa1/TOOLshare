@@ -1,0 +1,1 @@
+const Equipment = require('../models/Equipment');
