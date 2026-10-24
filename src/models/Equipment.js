@@ -1,35 +1,45 @@
-import mongoose from 'mongoose'
+const mongoose = require("mongoose");
+const STATES = require("../constants/equipmentStates");
 
-const EquipmentSchema = new mongoose.Schema({
-
-    name : {
-        type : String,
-        required : true,
-        trim : true
+const EquipmentSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: true,
+      trim: true,
     },
-
-    reference : {
-        type : String,
-        required : true,
-        unique : true,
-        trim : true,
-        uppercase : true
+    reference: {
+      type: String,
+      required: true,
+      unique: true,
+      trim: true,
     },
-
-    description : {
-        type : String
+    categorie: {
+      type: String,
+      required: true,
+      trim: true,
     },
-
-    etatMateriel : {
-        type : String,
-        enum : ["BON","ENDOMMAGE","EN_MAINTENANCE","HORS_SERVICE"],
-        default : "BON",
-        uppercase : true
+    description: {
+      type: String,
+      trim: true,
     },
+    etatMateriel: {
+      type: String,
+      enum: Object.values(STATES),
+      default: STATES.GOOD,
+    },
+    store: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Store",
+      required: true,
+      index: true,
+    },
+    isActive: {
+      type: Boolean,
+      default: true,
+    },
+  },
+  { timestamps: true },
+);
 
-    disponible : {
-        type : Boolean,
-        default : true
-    }
-
-}, {timestamps : true});
+module.exports = mongoose.model("Equipment", EquipmentSchema);
