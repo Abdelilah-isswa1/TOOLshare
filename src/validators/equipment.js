@@ -19,3 +19,14 @@ const updateEquipmentSchema = Joi.object({
   description: Joi.string().trim().allow(''),
   etatMateriel: Joi.string().valid(...states),
 }).min(1);
+
+const idParamSchema = Joi.object({ id: objectId.required() });
+
+const listEquipmentQuerySchema = Joi.object({
+  categorie: Joi.string().trim(),
+  etatMateriel: Joi.string().valid(...states),
+  isActive: Joi.boolean(),
+  page: Joi.number().integer().min(1).default(1),
+  limit: Joi.number().integer().min(1).max(100).default(10),
+  sort: Joi.string().valid('createdAt', '-createdAt', 'name', '-name').default('-createdAt'),
+});
