@@ -30,3 +30,7 @@ const listEquipmentQuerySchema = Joi.object({
   limit: Joi.number().integer().min(1).max(100).default(10),
   sort: Joi.string().valid('createdAt', '-createdAt', 'name', '-name').default('-createdAt'),
 });
+
+module.exports = {
+  createEquipmentSchema, updateEquipmentSchema, idParamSchema, listEquipmentQuerySchema,
+};
