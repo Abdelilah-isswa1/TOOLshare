@@ -44,3 +44,9 @@ const updateEquipment = async (id, payload, manager) => {
   }
   return equipmentRepository.updateById(id, data);
 };
+
+const setActive = async (id, manager, isActive) => {
+  const equipment = await getOwned(id, manager);
+  if (equipment.isActive === isActive) return equipment; // idempotent
+  return equipmentRepository.updateById(id, { isActive });
+};
