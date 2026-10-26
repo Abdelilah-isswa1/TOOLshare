@@ -19,3 +19,12 @@ const createEquipment = async (payload, manager) => {
 
   return equipmentRepository.create({ ...payload, store: manager.store });
 };
+
+const listEquipment = (query, manager) => {
+  const { page, limit, sort, ...filters } = query;
+  
+  return equipmentRepository.findAll(
+    { ...filters, store: manager.store },
+    { page, limit, sort }
+  );
+};
