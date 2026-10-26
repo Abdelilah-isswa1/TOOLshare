@@ -28,3 +28,19 @@ const listEquipment = (query, manager) => {
     { page, limit, sort }
   );
 };
+const getEquipment = (id, manager) => getOwned(id, manager);
+
+const updateEquipment = async (id, payload, manager) => {
+  const equipment = await getOwned(id, manager);
+
+  if (payload.reference && payload.reference !== equipment.reference) {
+    const other = await equipmentRepository.findByReference(payload.reference);
+    if (other) throw new AppError('Référence déjà utilisée', 409);
+  }
+
+  const data = {};
+  for (const key of ['name', 'reference', 'categorie', 'description', 'etatMateriel']) {
+    if (payload[key] !== undefined) data[key] = payload[key];
+  }
+  return equipmentRepository.updateById(id, data);
+};
