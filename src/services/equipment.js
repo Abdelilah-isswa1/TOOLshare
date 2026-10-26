@@ -47,6 +47,15 @@ const updateEquipment = async (id, payload, manager) => {
 
 const setActive = async (id, manager, isActive) => {
   const equipment = await getOwned(id, manager);
-  if (equipment.isActive === isActive) return equipment; // idempotent
+  if (equipment.isActive === isActive) return equipment; 
   return equipmentRepository.updateById(id, { isActive });
+};
+
+
+const deactivateEquipment = (id, manager) => setActive(id, manager, false);
+const reactivateEquipment = (id, manager) => setActive(id, manager, true);
+
+module.exports = {
+  createEquipment, listEquipment, getEquipment,
+  updateEquipment, deactivateEquipment, reactivateEquipment,
 };
